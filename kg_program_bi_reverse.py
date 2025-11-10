@@ -62,12 +62,12 @@ def get_relation_match_request(model_name: str, prompt_w_entity: str, qid: int, 
 
     return result_list
 
-def match_relation(triplet_set, claim: str, tgt_list: list, qid, code_id): # for SEARCH
+def match_relation(model_name, triplet_set, claim: str, tgt_list: list, qid, code_id): # for SEARCH
     match_list = []
 
     prompt_w_entity = open_file('./prompts/search_direct_prompt.txt').replace('<<<<LIST>>>>', str(triplet_set)).replace('<<<<CLAIM>>>>', claim).replace('<<<<TARGET>>>>', str(tgt_list))
 
-    match_list = get_relation_match_request('deepseek-chat', prompt_w_entity, qid, code_id, claim, triplet_set, tgt_list, max_tokens=1024)
+    match_list = get_relation_match_request(model_name, prompt_w_entity, qid, code_id, claim, triplet_set, tgt_list, max_tokens=1024)
     
     entity_list = []
     relation_list = [w[1] for w in match_list]
@@ -78,14 +78,14 @@ def match_relation(triplet_set, claim: str, tgt_list: list, qid, code_id): # for
 
     return relation_list
 
-def match_triplet(triplet_set, claim: str, tgt_list: list, qid, code_id): # for MATCH
+def match_triplet(model_name, triplet_set, claim: str, tgt_list: list, qid, code_id): # for MATCH
     prompt_w_entity = open_file('./prompts/match_direct_prompt.txt').replace('<<<<LIST>>>>', str(triplet_set)).replace('<<<<CLAIM>>>>', claim).replace('<<<<TARGET>>>>', str(tgt_list))
 
-    match_list = get_relation_match_request('deepseek-chat', prompt_w_entity, qid, code_id, claim, triplet_set, tgt_list, max_tokens=1024)
+    match_list = get_relation_match_request(model_name, prompt_w_entity, qid, code_id, claim, triplet_set, tgt_list, max_tokens=1024)
 
     return match_list
 
-def SEARCH(triplet, graph, claim, qid, code_id):
+def SEARCH(model_name, triplet, graph, claim, qid, code_id):
     # identifies the missing entity and returns possible entities
     head, relation, tail = triplet
     possible_entities = []
@@ -99,7 +99,7 @@ def SEARCH(triplet, graph, claim, qid, code_id):
             possible_entities.extend(graph[tail][r_match])
         else:
             triplet_set_0 = [[graph[tail][rel][0], rel[1:], tail] for rel in graph[tail] if rel[0] == '~'] + [[tail, rel, graph[tail][rel][0]] for rel in graph[tail] if rel[0] != '~']
-            relation_match = match_relation(triplet_set_0, claim, tgt_list=["Unknown", relation, tail], qid=qid, code_id=code_id)
+            relation_match = match_relation(model_name, triplet_set_0, claim, tgt_list=["Unknown", relation, tail], qid=qid, code_id=code_id)
             triplet_match = []
             for rel in relation_match:
                 if(rel[0] != '~' and rel in graph[tail]):
@@ -116,7 +116,7 @@ def SEARCH(triplet, graph, claim, qid, code_id):
             possible_entities.extend(graph[head][r_match])
         else:
             triplet_set_0 = [[head, rel, graph[head][rel][0]] for  rel in graph[head] if rel[0] != '~'] + [[graph[head][rel][0], rel[1:], head] for  rel in graph[head] if rel[0] == '~']
-            relation_match = match_relation(triplet_set_0, claim, tgt_list=[head, relation, "Unknown"], qid=qid, code_id=code_id)
+            relation_match = match_relation(model_name, triplet_set_0, claim, tgt_list=[head, relation, "Unknown"], qid=qid, code_id=code_id)
             triplet_match = []
             for rel in relation_match:
                 if(rel in graph[head]):
@@ -128,7 +128,7 @@ def SEARCH(triplet, graph, claim, qid, code_id):
 
     return possible_entities
 
-def MATCH(triplet, graph, claim, qid, code_id):
+def MATCH(model_name, triplet, graph, claim, qid, code_id):
     head, relation, tail = triplet
     possible_triplets = []
 
@@ -152,7 +152,7 @@ def MATCH(triplet, graph, claim, qid, code_id):
         return True
     else:
         possible_triplets = [list(item) for item in set(tuple(x) for x in possible_triplets)] # remove repeated triplets
-        triplet_match = match_triplet(possible_triplets, claim, [head, relation, tail], qid, code_id)
+        triplet_match = match_triplet(model_name, possible_triplets, claim, [head, relation, tail], qid, code_id)
         print(f'Match triplet : rel={relation}; match triplet={triplet_match}; possible triplet={possible_triplets}')
         if(len(triplet_match) > 0):
             return True
@@ -162,7 +162,7 @@ def VERIFY(result):
     return result
 
 # Function to execute the program code
-def execute_program(program_code, graph, claim, qid):
+def execute_program(model_name, program_code, graph, claim, qid):
     match = re.search(r"def program\(\):\n(.*)", program_code, re.DOTALL)
     if not match:
         raise ValueError("Invalid program format")
@@ -192,9 +192,9 @@ def execute_program(program_code, graph, claim, qid):
             # Call the corresponding function
             code_id += 1
             if func_name == "SEARCH":
-                local_vars[var_name] = SEARCH(params, graph, claim, qid, code_id)
+                local_vars[var_name] = SEARCH(model_name, params, graph, claim, qid, code_id)
             elif func_name == "MATCH":
-                local_vars[var_name] = MATCH(params, graph, claim, qid, code_id)
+                local_vars[var_name] = MATCH(model_name, params, graph, claim, qid, code_id)
             elif func_name == "VERIFY":
                 local_vars[var_name] = VERIFY(params)
             else:
