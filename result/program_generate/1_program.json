@@ -1,0 +1,7 @@
+{
+    "claim": "I have heard that Mobyland had a successor.",
+    "entities": [
+        "Mobyland"
+    ],
+    "program": "```python\ndef program():\n    entity_1 = SEARCH(('Mobyland', 'successor', None))\n    result_1 = MATCH(('Mobyland', 'successor', entity_1))\n    predicted = VERIFY(result_1)\n```"
+}

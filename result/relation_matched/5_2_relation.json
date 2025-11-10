@@ -1,0 +1,64 @@
+{
+    "claim": "Yes and John Sherman Cooper had a successor after him.",
+    "triplets": [
+        [
+            "William_A._Stanfill",
+            "successor",
+            "John_Sherman_Cooper"
+        ],
+        [
+            "John_Sherman_Cooper",
+            "predecessor",
+            "Thomas_R._Underwood"
+        ],
+        [
+            "Thomas_R._Underwood",
+            "successor",
+            "John_Sherman_Cooper"
+        ],
+        [
+            "John_Sherman_Cooper",
+            "predecessor",
+            "William_A._Stanfill"
+        ],
+        [
+            "John_Sherman_Cooper",
+            "predecessor",
+            "Robert_Humphreys"
+        ],
+        [
+            "Robert_Humphreys",
+            "successor",
+            "John_Sherman_Cooper"
+        ]
+    ],
+    "target_tri": [
+        [
+            "John_Sherman_Cooper"
+        ],
+        "have successor",
+        [
+            "Thomas_R._Underwood",
+            "Robert_Humphreys",
+            "William_A._Stanfill"
+        ]
+    ],
+    "matched": [
+        [
+            "John_Sherman_Cooper",
+            "predecessor",
+            "Thomas_R._Underwood"
+        ],
+        [
+            "John_Sherman_Cooper",
+            "predecessor",
+            "Robert_Humphreys"
+        ],
+        [
+            "John_Sherman_Cooper",
+            "predecessor",
+            "William_A._Stanfill"
+        ]
+    ],
+    "generate_string": "[\n  [\"John_Sherman_Cooper\", \"predecessor\", \"Thomas_R._Underwood\"],\n  [\"John_Sherman_Cooper\", \"predecessor\", \"Robert_Humphreys\"],\n  [\"John_Sherman_Cooper\", \"predecessor\", \"William_A._Stanfill\"]\n]"
+}
